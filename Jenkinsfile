@@ -4,10 +4,10 @@ pipeline {
   
   stages {
     
-    stage("Test") {
+    stage("test") {
 
       steps {
-	
+	echo 'building the app'
       }
     }
   }
