@@ -1,12 +1,13 @@
 pipeline {
-  agent {
-    dockerfile true
+  agent {label "linux"}
+  options {
+	buildDiscarder logRotator(artifactDaysToKeepStr:'', artifactNumToKeepStr: '5', daysToKeepStr:'', numToKeepStr: '5')
+	disableConcurrentBuilds()
   }
   stages {
     stage('Test') {
       steps {
 	echo 'Szervasz'
-	sh 'echo myCustomEnvVar = $myCustomEnvVar'
       }
     }
   }
