@@ -1,13 +1,26 @@
 pipeline {
-  agent {
-    dockerfile true
-  }
+  
+  agent any
+  
   stages {
-    stage('Test') {
+    
+    stage("build") {
       steps {
-	echo 'Szervasz'
-	sh 'echo myCustomEnvVar = $myCustomEnvVar'
+	      echo 'building the app'
       }
     }
+
+    stage("test") {
+      steps {
+        echo 'test complete'
+      }
+    }
+
+    stage("deploy") {
+      steps {
+        echo 'deploying'
+      }
+    }
+    
   }
 }
