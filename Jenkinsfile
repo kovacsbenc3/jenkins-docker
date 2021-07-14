@@ -1,71 +1,51 @@
-pipeline { 
-
-    environment { 
-
-        registry = 'kovacsbenc3/test' 
-
-        registryCredential = 'kovacsbenc3' 
-
-        dockerImage = 'Dockerfile' 
-
+pipeline {
+    
+    agent any
+    
+    environment {
+        dockerImage = ''
+        registry = 'kovacsbenc3/test'
+        registryCredential = 'kovacsbenc3'
     }
-
-    agent any 
-
-    stages { 
-
-        stage('Cloning our Git') { 
-
-            steps { 
-
-                git 'https://github.com/kovacsbenc3/my-first-repository.git' 
-
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/kovacsbenc3/my-first-repository.git']]])
             }
-
-        } 
-
-        stage('Building our image') { 
-
-            steps { 
-
-                script { 
-
-                    dockerImage = docker.build registry + ":$BUILD_NUMBER" 
-
-                }
-
-            } 
-
         }
-
-        stage('Deploy our image') { 
-
-            steps { 
-
-                script { 
-
-                    docker.withRegistry( '', registryCredential ) { 
-
-                        dockerImage.push() 
-
+        
+        stage('Build Docker image') {
+            steps {
+                script {
+                    dockerImage = docker.build registry
+                }
+            }
+        }
+        
+        stage ('Uploading Image') {
+            steps {
+                script {
+                    docker.withRegistry('', registryCredential) {
+                    dockerImage.push()
                     }
-
-                } 
-
+                }
             }
-
-        } 
-
-        stage('Cleaning up') { 
-
-            steps { 
-
-                sh "docker rmi $registry:$BUILD_NUMBER" 
-
-            }
-
-        } 
-
+        }
+        
+        stage('docker stop container') {
+            steps {
+               sh 'docker ps -f name=testContainer -q | xargs --no-run-if-empty docker container stop'
+               sh 'docker container ls -a -fname=testContainer -q | xargs -r docker container rm'
+         }
+       }
+    
+        stage('Docker Run') {
+            steps{
+                script {
+                dockerImage.run("-p 8096:3000 --rm --name testContainer")
+        }
+      }
     }
-
+  }
 }
