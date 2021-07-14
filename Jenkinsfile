@@ -6,7 +6,7 @@ pipeline {
 
         registryCredential = 'kovacsbenc3' 
 
-        dockerImage = 'helo' 
+        dockerImage = 'Dockerfile' 
 
     }
 
